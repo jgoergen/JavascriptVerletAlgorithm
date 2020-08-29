@@ -1,6 +1,9 @@
 # Javascript Verlet Algorithm
 My attempt at the popular ( velocity-less ) Verlet Algorithm written in Javascript
 
+A python port can be found [here](https://github.com/jgoergen/PythonVerlet).
+A stripped down Arduino C version can be found [here](https://github.com/jgoergen/ArduinoVerlet).
+
 #### Basically all of this math has been pulled together from research online. I am definetley not good enough at math to come up with most of these equations myself, so the truly heavy lifting has been lifted / adapted from resources found all over the internet.
 
 # **This is a work in progress!**
