@@ -51,6 +51,7 @@
 <script src="2DLib/Circle2D.js" type="text/javascript"></script>
 <script src="2DLib/CollisionFuncs.js" type="text/javascript"></script>
 <script src="VerletIntegration/Particle.js" type="text/javascript"></script>
+<script src="VerletIntegration/Effector.js" type="text/javascript"></script>
 <script src="VerletIntegration/Constraint.js" type="text/javascript"></script>
 <script src="VerletIntegration/Body.js" type="text/javascript"></script>
 <script src="VerletIntegration/VerletIntegration.js" type="text/javascript"></script>
@@ -163,13 +164,19 @@
 
     function changeGravity() {
 
-        if (usingTilt)
-            return;
+        for (var i = 0; i < verlet.effectors.length; i++) {
 
-        setGravity(
-            new Vector2D(
-                (Math.random() * 0.05) - 0.025),
-            (Math.random() * 0.05) - 0.025);
+            verlet.effectors[i].vector.x = Math.random() * CANVAS_WIDTH;
+            verlet.effectors[i].vector.y = Math.random() * CANVAS_HEIGHT;
+            verlet.effectors[i].force = (Math.random() * 1) - 0.5;
+        }
+
+        if (!usingTilt) {
+            setGravity(
+                new Vector2D(
+                    (Math.random() * 0.05) - 0.025),
+                (Math.random() * 0.05) - 0.025);
+        }
 
         gravityUpdateIntervalID = setTimeout(
             function () { changeGravity(); },
@@ -186,6 +193,7 @@
         lastTime = date;
 
         ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+        ctx.strokeStyle = "white";
 
         for (var i = 0; i < verlet.particles.length; i++) {
 
@@ -211,6 +219,33 @@
             }
         }
 
+        for (var i = 0; i < verlet.effectors.length; i++) {
+
+            if (verlet.effectors[i].data.drawn) {
+
+                if (verlet.effectors[i].force > 0) {
+
+                    ctx.strokeStyle = "green";
+                }
+                else {
+
+                    ctx.strokeStyle = "red";
+                }
+
+                ctx.beginPath();
+
+                ctx.arc(
+                    verlet.effectors[i].vector.x,
+                    verlet.effectors[i].vector.y,
+                    verlet.effectors[i].radius,
+                    0,
+                    2 * Math.PI);
+
+                ctx.stroke();
+            }
+        }
+
+        ctx.strokeStyle = "white";
         ctx.beginPath();
 
         for (var i = 0; i < verlet.constraints.length; i++) {
@@ -275,7 +310,21 @@
 
     function genRandomTest() {
 
-        demoMode = 9; //Math.floor(Math.random() * 15);
+        for (var i = 0; i < 4; i++) {
+
+            let effector =
+                new Effector({
+                    vector: new Vector2D(Math.random() * CANVAS_WIDTH, Math.random() * CANVAS_HEIGHT),
+                    pinToMouse: false,
+                    force: (Math.random() * 1) - 0.5,
+                    radius: (Math.random() * 100) + 50,
+                    data: { drawn: true }
+                });
+
+            verlet.addEffector(effector);
+        }
+
+        demoMode = Math.floor(Math.random() * 15);
         let objectID = 0;
 
         switch (demoMode) {
@@ -1113,7 +1162,7 @@
 
     // code to run when the device tilts
     function tilt(e) {
-
+        return;
         setGravity(
             new Vector2D(
                 (e.gamma) * GRAVITY_DAMPENING,
